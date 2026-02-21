@@ -2,7 +2,6 @@ name: Deploy
 
 on:
   workflow_dispatch:
-     
   push:
     branches:
       - master
@@ -11,13 +10,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
         with:
           version: 10
-      - name: Deploy
+
+      - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: "3.111.0"
+          packageManager: pnpm
